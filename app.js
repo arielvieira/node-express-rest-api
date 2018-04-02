@@ -4,6 +4,11 @@ const mongoose = require("mongoose");
 
 const app = express();
 
+const usersRoutes = require('./api/routes/users');
+
+mongoose.connect('mongodb://localhost:27017/Oficina5', { useMongoClient: true });
+mongoose.Promise = global.Promise;
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -24,9 +29,7 @@ app.use("/contatos", (req, res, next) => {
     res.send('contatos')
 });
 
-app.use("/usuarios", (req, res, next) => {
-    res.send('usuarios')
-});
+app.use("/usuarios", usersRoutes);
 
 app.use((req, res, next) => {
     const error = new Error("Not found");
