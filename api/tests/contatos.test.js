@@ -7,6 +7,19 @@ const { contatos, populateContatos } = require('./seed/contatosSeed');
 
 describe('Contatos', () => {
     beforeEach(populateContatos);
+
+    describe('GET /contatos', () => {
+        it('should return all 2 contatos', (done) => {
+            request(app)
+                .get('/contatos')
+                .expect(200)
+                .expect((res) => {
+                    expect(res.body.contatos.length).toBe(2);
+                })
+                .end(done);
+        });
+    })
+
     describe('POST /contatos', () => {
         it('should create a contato', (done) => {
             const email = 'test@test.com';

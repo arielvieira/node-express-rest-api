@@ -5,6 +5,12 @@ const moment = require('moment');
 
 const Contato = require('../models/contato');
 
+router.get('/', async (req, res, next) => {
+    const contatos = await Contato.find({});
+
+    res.send({ contatos });
+})
+
 router.post('/', async (req, res, next) => {
     try {
         const contatosResults = await Contato.find({ email: req.body.email }).exec()
