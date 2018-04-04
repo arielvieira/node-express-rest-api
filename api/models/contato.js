@@ -15,7 +15,7 @@ const contatoSchema = mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true,
+        unique: false,
         trim: true,
         validate: {
             validator: (value) => validator.isEmail(value),
@@ -28,6 +28,10 @@ const contatoSchema = mongoose.Schema({
         minlength: 6,
         trim: true,
         match: /^(?:(?:\+)?(55)\s?)?(?:\(?([0])?([1-9][0-9])\)?\s?)?(?:((?:9\d|[2-9])\d{3})\-?(\d{4}))$/
+    },
+    _creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     }
 });
 

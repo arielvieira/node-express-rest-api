@@ -7,9 +7,10 @@ moment.locale('pt-br');
 const Contato = require('../models/contato');
 
 const verifyDataNascimento = require('../middlewares/verifyDataNascimento');
+const checkAuth = require('../middlewares/checkAuth');
 
-router.get('/', async (req, res, next) => {
-    const contatosResult = await Contato.find({});
+router.get('/', checkAuth, async (req, res, next) => {
+    const contatosResult = await Contato.find({ _creator: req.userData.userId });
 
     const contatos = contatosResult.map((contato) => {
         let dataNascimento = contato.dataNascimento && moment(contato.dataNascimento).format('L');
@@ -19,9 +20,9 @@ router.get('/', async (req, res, next) => {
     res.send({ contatos });
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', checkAuth, async (req, res, next) => {
     try {
-        const contatoResult = await Contato.findOne({ _id: req.params.id });
+        const contatoResult = await Contato.findOne({ _id: req.params.id, _creator: req.userData.userId });
         const dataNascimento = contatoResult.dataNascimento && moment(contatoResult.dataNascimento).format('L');
         const contato = { ...contatoResult._doc, dataNascimento };
 
@@ -31,10 +32,11 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
-router.post('/', verifyDataNascimento, async (req, res, next) => {
+router.post('/', checkAuth, verifyDataNascimento, async (req, res, next) => {
     const contatoData = { email, telefone, nome } = req.body;
+    const _creator = req.userData.userId;
     try {
-        const contatoResult = await Contato.findOne({ email });
+        const contatoResult = await Contato.findOne({ email, _creator });
         if (contatoResult) {
             return res.status(409).json({
                 error: { email: { message: `${contatoResult.email} already exists` } }
@@ -44,6 +46,7 @@ router.post('/', verifyDataNascimento, async (req, res, next) => {
         const contato = new Contato({
             _id: new mongoose.Types.ObjectId(),
             ...contatoData,
+            _creator,
             dataNascimento: req.dataNascimento,
         });
 
@@ -58,11 +61,14 @@ router.post('/', verifyDataNascimento, async (req, res, next) => {
     }
 });
 
-router.patch('/:id', verifyDataNascimento, async (req, res, next) => {
+router.patch('/:id', checkAuth, verifyDataNascimento, async (req, res, next) => {
     try {
         const contatoUpdate = { ...req.body, dataNascimento: req.dataNascimento }
         const contatoResult = await Contato.findOneAndUpdate(
-            { _id: req.params.id },
+            {
+                _id: req.params.id,
+                _creator: req.userData.userId
+            },
             { $set: contatoUpdate },
             { new: true, runValidators: true }
         );
@@ -89,13 +95,13 @@ router.patch('/:id', verifyDataNascimento, async (req, res, next) => {
     }
 });
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', checkAuth, async (req, res, next) => {
     try {
-        const contato = await Contato.findOneAndRemove({ _id: req.params.id, });
+        const contato = await Contato.findOneAndRemove({ _id: req.params.id, _creator: req.userData.userId });
         if (!contato) {
             return res.status(404).send({});
         }
-        
+
         res.send();
     } catch (err) {
         res.status(404).send({});
