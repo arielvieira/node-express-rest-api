@@ -1,18 +1,36 @@
 const mongoose = require('mongoose');
+const { hasNextPages } = require('express-paginate');
 const moment = require('moment');
 moment.locale('pt-br');
 
 const Contato = require('../models/contato');
 
 exports.get_all_contatos = async (req, res, next) => {
-    const contatosResult = await Contato.find({ _creator: req.userData.userId }).lean();
+    const _creator = req.userData.userId;
+    const { limit, page } = req.query;
+    try {
+        const [contatosResult, contatosCount] = await Promise.all([
+            Contato.find({ _creator }).limit(limit).skip(req.skip).lean(),
+            Contato.count({})
+        ]);
 
-    const contatos = contatosResult.map((contato) => {
-        let dataNascimento = contato.dataNascimento && moment(contato.dataNascimento).format('L');
-        return { ...contato, dataNascimento }
-    });
+        const pageCount = Math.ceil(contatosCount / limit);
 
-    res.send({ contatos });
+        const contatos = contatosResult.map((contato) => {
+            let dataNascimento = contato.dataNascimento && moment(contato.dataNascimento).format('L');
+            return { ...contato, dataNascimento }
+        });
+
+        res.send({
+            number_of_pages: pageCount,
+            page,
+            has_more: hasNextPages(req)(pageCount),
+            contatos_per_page: limit,
+            contatos
+        });
+    } catch (err) {
+        res.status(400).send();
+    }
 };
 
 exports.get_contato = async (req, res, next) => {

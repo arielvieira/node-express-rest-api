@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const { middleware: paginationMiddleware } = require('express-paginate');
 
 const ContatoController = require('../controllers/contato');
 
 const verifyDataNascimento = require('../middlewares/verifyDataNascimento');
 const checkAuth = require('../middlewares/checkAuth');
+const pagination = paginationMiddleware(10, 25);
 
-router.get('/', checkAuth, ContatoController.get_all_contatos );
+router.get('/', checkAuth, pagination, ContatoController.get_all_contatos);
 
 router.get('/:id', checkAuth, ContatoController.get_contato);
 
