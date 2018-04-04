@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const app = express();
 
 const usersRoutes = require('./api/routes/users');
+const contatosRoutes = require('./api/routes/contatos');
 
 mongoose.connect('mongodb://localhost:27017/Oficina5', { useMongoClient: true });
 mongoose.Promise = global.Promise;
@@ -25,9 +26,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use("/contatos", (req, res, next) => {
-    res.send('contatos')
-});
+app.use('/contatos', contatosRoutes);
 
 app.use("/usuarios", usersRoutes);
 

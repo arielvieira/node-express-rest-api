@@ -3,16 +3,16 @@ const mongoose = require('mongoose');
 const User = require('./../../models/user');
 
 const users = [
-    {
+    new User({
         _id: new mongoose.Types.ObjectId(),
         email: 'ariel@gmail.com',
         password: 'zxc123@'
-    },
-    {
+    }),
+    new User({
         _id: new mongoose.Types.ObjectId(),
         email: 'neil@gmail.com',
         password: 'qw48e!!'
-    }
+    })
 ];
 
 const populateUsers = (done) => {
