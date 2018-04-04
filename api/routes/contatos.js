@@ -9,7 +9,12 @@ const Contato = require('../models/contato');
 const verifyDataNascimento = require('../middlewares/verifyDataNascimento');
 
 router.get('/', async (req, res, next) => {
-    const contatos = await Contato.find({});
+    const contatosResult = await Contato.find({});
+
+    const contatos = contatosResult.map((contato) => {
+        let dataNascimento = contato.dataNascimento && moment(contato.dataNascimento).format('L');
+        return { ...contato._doc, dataNascimento }
+    });
 
     res.send({ contatos });
 });
