@@ -1,14 +1,12 @@
+require('./config/config.js');
 const express = require("express");
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
 
 const app = express();
+const mongoose = require('./api/db/mongoose');
 
 const usersRoutes = require('./api/routes/users');
 const contatosRoutes = require('./api/routes/contatos');
-
-mongoose.connect('mongodb://localhost:27017/Oficina5', { useMongoClient: true });
-mongoose.Promise = global.Promise;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
