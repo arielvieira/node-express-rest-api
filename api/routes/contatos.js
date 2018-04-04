@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const moment = require('moment');
+moment.locale('pt-br');
 
 const Contato = require('../models/contato');
+
+const verifyDataNascimento = require('../middlewares/verifyDataNascimento');
 
 router.get('/', async (req, res, next) => {
     const contatos = await Contato.find({});
@@ -23,39 +26,20 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', verifyDataNascimento, async (req, res, next) => {
+    const contatoData = { email, telefone, nome } = req.body;
     try {
-        const contatosResults = await Contato.find({ email: req.body.email }).exec()
-        const hasContatos = contatosResults.length >= 1;
-        if (hasContatos) {
+        const contatoResult = await Contato.findOne({ email });
+        if (contatoResult) {
             return res.status(409).json({
-                error: { email: { message: `${contatosResults[0].email} already exists` } }
+                error: { email: { message: `${contatoResult.email} already exists` } }
             })
-        }
-
-        let dataMoment;
-        const dataNascimento = req.body.dataNascimento;
-        if (dataNascimento) {
-            const regex = /^(0?[1-9][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-](\d{4}|\d{2})$/;
-            const match = dataNascimento.match(regex);
-
-            dataMoment = moment(dataNascimento, 'DD/MM/YYYY');
-            const dataIsInvalid = dataMoment.toDate().toString() === 'Invalid Date';
-
-            if (!match || dataIsInvalid) {
-                return res.status(400).json({
-                    error: { dataNascimento: { message: 'dataNascimento is invalid' } }
-                })
-            }
-            dataMoment = dataMoment.toDate();
         }
 
         const contato = new Contato({
             _id: new mongoose.Types.ObjectId(),
-            nome: req.body.nome,
-            dataNascimento: dataMoment,
-            email: req.body.email,
-            telefone: req.body.telefone,
+            ...contatoData,
+            dataNascimento: req.dataNascimento,
         });
 
         await contato.save();
