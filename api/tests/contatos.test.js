@@ -65,6 +65,16 @@ describe('Tests', async () => {
                     .end(done);
             });
 
+            it('should not return a contato created by another user', (done) => {
+                const contatoId = contatos[1]._id.toHexString();
+
+                request(app)
+                    .get(`/contatos/${contatoId}`)
+                    .set('authorization', tokenUserOne)
+                    .expect(404)
+                    .end(done);
+            });
+
             it('should return 404 if contato was not found', (done) => {
                 const id = new mongoose.Types.ObjectId().toHexString();
                 request(app)
@@ -166,6 +176,19 @@ describe('Tests', async () => {
                     .end(done);
             });
 
+            it('should not update a contato created by another user', (done) => {
+                const id = contatos[1]._id.toHexString();
+                const nome = 'Caique Souza';
+                const telefone = '55 34 99745-2359';
+
+                request(app)
+                    .patch(`/contatos/${id}`)
+                    .send({ nome, telefone })
+                    .set('authorization', tokenUserOne)
+                    .expect(404)
+                    .end(done);
+            });
+
             it('should not update contato if parameters are invalid', (done) => {
                 const id = contatos[1]._id.toHexString();
                 const nome = '';
@@ -187,6 +210,7 @@ describe('Tests', async () => {
         describe('DELETE /contatos/:id', () => {
             it('should remove the contato', (done) => {
                 const id = contatos[1]._id.toHexString();
+                const userId = users[1]._id;
 
                 request(app)
                     .delete(`/contatos/${id}`)
@@ -195,13 +219,23 @@ describe('Tests', async () => {
                     .end(async (err, res) => {
                         if (err) return done(err);
                         try {
-                            const contato = await Contato.findOne({ _id: id });
+                            const contato = await Contato.findOne({ _id: id, _creator: userId });
                             expect(contato).toBeFalsy();
                             done();
                         } catch (error) {
                             done(error)
                         }
                     });
+            });
+
+            it('should not remove a contato created by another user', (done) => {
+                const id = contatos[1]._id.toHexString();
+
+                request(app)
+                    .delete(`/contatos/${id}`)
+                    .expect(404)
+                    .set('authorization', tokenUserOne)
+                    .end(done);
             });
 
             it('should return 404 if contato was not found', (done) => {
