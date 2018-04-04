@@ -58,4 +58,35 @@ router.post('/', verifyDataNascimento, async (req, res, next) => {
     }
 });
 
+router.patch('/:id', verifyDataNascimento, async (req, res, next) => {
+    try {
+        const contatoUpdate = { ...req.body, dataNascimento: req.dataNascimento }
+        const contatoResult = await Contato.findOneAndUpdate(
+            { _id: req.params.id },
+            { $set: contatoUpdate },
+            { new: true, runValidators: true }
+        );
+        if (!contatoResult) {
+            return res.status(404).send();
+        }
+
+        const dataNascimento = contatoResult.dataNascimento && moment(contatoResult.dataNascimento).format('L');
+        const contato = { ...contatoResult._doc, dataNascimento };
+
+        res.send({ contato });
+    } catch (error) {
+        if (error.errors) {
+            return res.status(400).send({ error: error.errors });
+        }
+        if (error.codeName === 'DuplicateKey') {
+            return res.status(400).send({
+                error: {
+                    email: { message: `${req.body.email} already exists` }
+                }
+            });
+        }
+        res.status(404).send();
+    }
+});
+
 module.exports = router;

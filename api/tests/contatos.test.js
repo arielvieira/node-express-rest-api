@@ -70,7 +70,7 @@ describe('Contatos', () => {
                 .end(done);
         });
 
-        it('should return validation errors if request parameters is invalid', (done) => {
+        it('should return validation errors if request parameters are invalid', (done) => {
             const nome = '';
             const telefone = '+5 34 9974-12191';
             const email = 'ariel';
@@ -110,6 +110,41 @@ describe('Contatos', () => {
                     telefone: contatos[0].telefone
                 })
                 .expect(409)
+                .end(done);
+        });
+    });
+    
+    describe('PATCH /contatos/:id', () => {
+        it('should update contato', (done) => {
+            const id = contatos[1]._id.toHexString();
+            const nome = 'Pedro Ribeiro';
+            const telefone = '55 32 99745-1245';
+
+            request(app)
+                .patch(`/contatos/${id}`)
+                .send({ nome, telefone })
+                .expect(200)
+                .expect((res) => {
+                    const contato = res.body.contato;
+                    expect(contato.nome).toBe(nome);
+                    expect(contato.telefone).toBe(telefone);
+                })
+                .end(done);
+        });
+
+        it('should not update contato if parameters are invalid', (done) => {
+            const id = contatos[1]._id.toHexString();
+            const nome = '';
+            const telefone = '555 332 9-9745-1245';
+
+            request(app)
+                .patch(`/contatos/${id}`)
+                .send({ nome, telefone })
+                .expect(400)
+                .expect((res) => {
+                    expect(res.body.error.telefone).toBeTruthy();
+                    expect(res.body.error.nome).toBeTruthy();
+                })
                 .end(done);
         });
     });
