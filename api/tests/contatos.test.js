@@ -113,7 +113,7 @@ describe('Contatos', () => {
                 .end(done);
         });
     });
-    
+
     describe('PATCH /contatos/:id', () => {
         it('should update contato', (done) => {
             const id = contatos[1]._id.toHexString();
@@ -145,6 +145,41 @@ describe('Contatos', () => {
                     expect(res.body.error.telefone).toBeTruthy();
                     expect(res.body.error.nome).toBeTruthy();
                 })
+                .end(done);
+        });
+    });
+
+    describe('DELETE /contatos/:id', () => {
+        it('should remove the contato', (done) => {
+            const id = contatos[1]._id.toHexString();
+
+            request(app)
+                .delete(`/contatos/${id}`)
+                .expect(200)
+                .end(async (err, res) => {
+                    if (err) return done(err);
+                    try {
+                        const contato = await Contato.findOne({ _id: id });
+                        expect(contato).toBeFalsy();
+                        done();
+                    } catch (error) {
+                        done(error)
+                    }
+                });
+        });
+
+        it('should return 404 if contato was not found', (done) => {
+            const id = new mongoose.Types.ObjectId().toHexString();
+            request(app)
+                .delete(`/contatos/${id}`)
+                .expect(404)
+                .end(done);
+        });
+
+        it('should return 404 if object id is invalid ', (done) => {
+            request(app)
+                .delete(`/contatos/1[5sdz;.ç-`)
+                .expect(404)
                 .end(done);
         });
     });

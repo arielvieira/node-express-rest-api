@@ -89,4 +89,17 @@ router.patch('/:id', verifyDataNascimento, async (req, res, next) => {
     }
 });
 
+router.delete('/:id', async (req, res, next) => {
+    try {
+        const contato = await Contato.findOneAndRemove({ _id: req.params.id, });
+        if (!contato) {
+            return res.status(404).send({});
+        }
+        
+        res.send();
+    } catch (err) {
+        res.status(404).send({});
+    }
+});
+
 module.exports = router;
