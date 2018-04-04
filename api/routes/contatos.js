@@ -9,7 +9,19 @@ router.get('/', async (req, res, next) => {
     const contatos = await Contato.find({});
 
     res.send({ contatos });
-})
+});
+
+router.get('/:id', async (req, res, next) => {
+    try {
+        const contatoResult = await Contato.findOne({ _id: req.params.id });
+        const dataNascimento = contatoResult.dataNascimento && moment(contatoResult.dataNascimento).format('L');
+        const contato = { ...contatoResult._doc, dataNascimento };
+
+        res.send({ contato });
+    } catch (error) {
+        res.status(404).send();
+    }
+});
 
 router.post('/', async (req, res, next) => {
     try {

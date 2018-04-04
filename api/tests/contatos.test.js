@@ -1,5 +1,7 @@
 const expect = require('expect');
 const request = require('supertest');
+const mongoose = require('mongoose');
+const moment = require('moment');
 
 const app = require('./../../app');
 const Contato = require('./../models/contato');
@@ -19,6 +21,41 @@ describe('Contatos', () => {
                 .end(done);
         });
     })
+
+    describe('GET /contatos/:id', () => {
+        it('should return a contato', (done) => {
+            request(app)
+                .get(`/contatos/${contatos[0]._id.toHexString()}`)
+                .expect(200)
+                .expect((res) => {
+                    const dataNascimento = contatos[0].dataNascimento && moment(contatos[0].dataNascimento).format('L');
+                    expect(res.body.contato.email).toBe(contatos[0].email);
+                    expect(res.body.contato.telefone).toBe(contatos[0].telefone);
+                    expect(res.body.contato.nome).toBe(contatos[0].nome);
+                    expect(res.body.contato.dataNascimento).toBe(dataNascimento);
+                })
+                .end(done);
+        });
+
+        it('should return 404 if contato was not found', (done) => {
+            const id = new mongoose.Types.ObjectId().toHexString();
+
+            request(app)
+                .get(`/contatos/${id}`)
+                .expect(404)
+                .expect((res) => {
+                    expect(res.body).toEqual({});
+                })
+                .end(done);
+        });
+
+        it('should return 404 for non-object ids', (done) => {
+            request(app)
+                .get('/contatos/123zxc')
+                .expect(404)
+                .end(done);
+        });
+    });
 
     describe('POST /contatos', () => {
         it('should create a contato', (done) => {
