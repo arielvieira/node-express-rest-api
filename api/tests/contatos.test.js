@@ -101,16 +101,17 @@ describe('Tests', async () => {
                 const email = 'test@test.com';
                 const telefone = '32118548';
                 const dataNascimento = '21/08/1996';
+                const nome = 'Ariel'
 
                 request(app)
                     .post('/contatos')
-                    .send({ email, telefone })
+                    .send({ email, telefone, dataNascimento, nome })
                     .set('authorization', tokenUserTwo)
                     .expect(201)
                     .end(done);
             });
 
-            it('should return validation errors if request parameters are invalid', (done) => {
+            it('should return validation errors for invalid parameters', (done) => {
                 const nome = '';
                 const telefone = '+5 34 9974-12191';
                 const email = 'ariel';
@@ -121,9 +122,10 @@ describe('Tests', async () => {
                     .set('authorization', tokenUserTwo)
                     .expect(400)
                     .expect((res) => {
-                        expect(res.body.error.nome).toBeTruthy()
-                        expect(res.body.error.email).toBeTruthy()
-                        expect(res.body.error.telefone).toBeTruthy()
+                        expect(res.body.error.nome).toBeTruthy();
+                        expect(res.body.error.email).toBeTruthy();
+                        expect(res.body.error.telefone).toBeTruthy();
+                        expect(res.body.error.dataNascimento).toBeTruthy();
                     })
                     .end(done);
             });
@@ -180,10 +182,11 @@ describe('Tests', async () => {
                 const id = contatos[1]._id.toHexString();
                 const nome = 'Caique Souza';
                 const telefone = '55 34 99745-2359';
+                const dataNascimento = '21/08/1996';
 
                 request(app)
                     .patch(`/contatos/${id}`)
-                    .send({ nome, telefone })
+                    .send({ nome, telefone ,dataNascimento})
                     .set('authorization', tokenUserOne)
                     .expect(404)
                     .end(done);

@@ -58,9 +58,11 @@ exports.create_contato = async (req, res, next) => {
 
         const contato = new Contato({
             _id: new mongoose.Types.ObjectId(),
-            ...contatoData,
             _creator,
-            dataNascimento: req.dataNascimento,
+            ...contatoData,
+            ...req.dataNascimento && {
+                dataNascimento: req.dataNascimento
+            },
         });
 
         await contato.save();
@@ -76,13 +78,18 @@ exports.create_contato = async (req, res, next) => {
 
 exports.update_contato = async (req, res, next) => {
     try {
-        const contatoUpdate = { ...req.body, dataNascimento: req.dataNascimento }
+        const contatoUpdates = {
+            ...req.body,
+            ...req.dataNascimento && {
+                dataNascimento: req.dataNascimento
+            }
+        }
         const contatoResult = await Contato.findOneAndUpdate(
             {
                 _id: req.params.id,
                 _creator: req.userData.userId
             },
-            { $set: contatoUpdate },
+            { $set: contatoUpdates },
             { new: true, runValidators: true }
         ).lean();
         if (!contatoResult) {

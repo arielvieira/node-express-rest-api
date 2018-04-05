@@ -7,10 +7,11 @@ const contatoSchema = mongoose.Schema({
         type: String,
         trim: true,
         minlength: 1,
+        required: true,
     },
     dataNascimento: {
         type: Date,
-        trim: true
+        required: true,
     },
     email: {
         type: String,
@@ -25,7 +26,6 @@ const contatoSchema = mongoose.Schema({
     telefone: {
         type: String,
         required: true,
-        minlength: 6,
         trim: true,
         match: /^(?:(?:\+)?(55)\s?)?(?:\(?([0])?([1-9][0-9])\)?\s?)?(?:((?:9\d|[2-9])\d{3})\-?(\d{4}))$/
     },
