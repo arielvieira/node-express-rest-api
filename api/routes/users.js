@@ -11,6 +11,8 @@ router.post('/', UserController.user_signup);
 
 router.post('/login', UserController.user_login);
 
+router.patch('/me', checkAuth, UserController.user_update);
+
 router.delete('/me', checkAuth, UserController.user_delete);
 
 module.exports = router;

@@ -6,8 +6,21 @@ const User = require('./../models/user');
 const Contato = require('./../models/contato');
 const { users, populateUsers } = require('./seed/userSeed');
 
-beforeEach(populateUsers);
-describe('Usuarios', async () => {
+let tokenUserOne;
+let tokenUserTwo;
+beforeEach((done) => {
+    const populatetokens = async () => {
+        const tokens = await Promise.all([
+            await users[0].generateAuthToken(),
+            await users[1].generateAuthToken()
+        ]);
+        [tokenUserOne, tokenUserTwo] = [...tokens];
+    }
+    populatetokens();
+    populateUsers(done);
+});
+
+describe('Usuarios', () => {
     describe('POST /usuarios', () => {
         it('should create a user', (done) => {
             const email = 'test@test.com';
@@ -73,12 +86,45 @@ describe('Usuarios', async () => {
         });
     });
 
-    const token = await users[0].generateAuthToken();
+    describe('PATCH /usuarios/me', () => {
+        it('should update user', (done) => {
+            const newEmail = 'newemail@gmail.com';
+            const password = 'asd456';
+
+            request(app)
+                .patch('/usuarios/me')
+                .send({ email: newEmail, password })
+                .set('authorization', tokenUserTwo)
+                .expect(200)
+                .expect((res) => {
+                    const { id, email, token } = res.body;
+                    expect(id.toString()).toBe(users[1]._id.toHexString());
+                    expect(email).toBe(newEmail);
+                    expect(token).toBeTruthy();
+                    expect(token).not.toBe(tokenUserTwo);
+                })
+                .end(done);
+        });
+
+        it('should not update contato if password or email are invalid', (done) => {
+            const email = 'new email';
+            const password = 'pass';
+
+            request(app)
+                .patch('/usuarios/me')
+                .send({ email, password })
+                .set('authorization', tokenUserTwo)
+                .expect(400)
+                .end(done);
+        });
+    });
+
+
     describe('DELETE /usuarios/me', () => {
         it('should remove user and its contatos', (done) => {
             request(app)
                 .delete('/usuarios/me')
-                .set('authorization', token)
+                .set('authorization', tokenUserOne)
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) return done(err);
