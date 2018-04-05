@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const User = require('../models/user');
+const Contato = require('../models/contato');
 
 exports.user_signup = async (req, res, next) => {
     try {
@@ -39,5 +40,20 @@ exports.user_login = async (req, res, next) => {
         });
     } catch (err) {
         res.status(401).send();
+    }
+};
+
+exports.user_delete = async (req, res, next) => {
+    const { userId } = req.userData;
+    try {
+        const user = await User.findByIdAndRemove(userId);
+        if (!user) {
+            return res.status(404).json();
+        }
+
+        await Contato.remove({ _creator: userId })
+        res.status(200).json();
+    } catch (error) {
+        res.status(400).json();
     }
 };

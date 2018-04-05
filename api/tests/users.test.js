@@ -3,10 +3,11 @@ const request = require('supertest');
 
 const app = require('./../../app');
 const User = require('./../models/user');
+const Contato = require('./../models/contato');
 const { users, populateUsers } = require('./seed/userSeed');
 
-describe('Usuarios', () => {
-    beforeEach(populateUsers);
+beforeEach(populateUsers);
+describe('Usuarios', async () => {
     describe('POST /usuarios', () => {
         it('should create a user', (done) => {
             const email = 'test@test.com';
@@ -69,6 +70,23 @@ describe('Usuarios', () => {
                     expect(res.body).toEqual({});
                 })
                 .end(done);
+        });
+    });
+
+    const token = await users[0].generateAuthToken();
+    describe('DELETE /usuarios/me', () => {
+        it('should remove user and its contatos', (done) => {
+            request(app)
+                .delete('/usuarios/me')
+                .set('authorization', token)
+                .expect(200)
+                .end(async (err, res) => {
+                    if (err) return done(err);
+
+                    const contatos = await Contato.find({ _creator: users[0]._id });
+                    expect(contatos.length).toBe(0);
+                    done();
+                });
         });
     });
 });
