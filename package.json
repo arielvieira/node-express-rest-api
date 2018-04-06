@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
     "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha api/tests/*.test.js --exit",
     "test-watch": "nodemon --exec \"npm test\""
   },
@@ -20,6 +21,7 @@
     "jsonwebtoken": "^8.2.0",
     "moment": "^2.22.0",
     "mongoose": "^4.13.12",
+    "swagger-ui-express": "^3.0.6",
     "validator": "^9.4.1"
   },
   "devDependencies": {

@@ -1,6 +1,8 @@
-require('./config/config.js');
+require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger/swagger');
 
 const app = express();
 const mongoose = require('./api/db/mongoose');
@@ -27,6 +29,8 @@ app.use((req, res, next) => {
 app.use('/contatos', contatosRoutes);
 
 app.use('/usuarios', usersRoutes);
+
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
