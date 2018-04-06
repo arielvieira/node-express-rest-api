@@ -41,7 +41,7 @@ module.exports = {
     JWT_SECRET: 'JWT_SECRET' // senha para geração dos token
 };
 ```
-O arquivo dev.js será usado quando executado o comando
+O arquivo dev.js será usado quando executado o comando.
 ```
 npm start
 ```
@@ -53,7 +53,7 @@ module.exports = {
     JWT_SECRET: 'JWT_SECRET' // senha para geração dos token
 };
 ```
-O arquivo test.js será usado para definir o ambiente de testes para o comando
+O arquivo test.js será usado para definir o ambiente de testes para o comando.
 ```
 npm test
 ```
@@ -63,10 +63,10 @@ A api agora deve estar rodando no endereço [localhost:3000](http://localhost:30
 
 ## Tecnologias usadas
 
-* [Node](https://nodejs.org/en/) - Para rodar javascrit no servidor
-* [Express](https://www.express.com/) - Framework para construção de web services
-* [MongoDB](https://www.mongodb.com/) - Para o banco de dados
-* [Mongoose](http://mongoosejs.com/) - ODM para MongoDB
-* [Mocha](https://mochajs.org/) - Para os testes
-* [Swagger](https://swagger.io/) - Para a documentação das rotas da api
+* [Node](https://nodejs.org/en/) - Para rodar javascrit no servidor.
+* [Express](https://www.express.com/) - Framework para construção de web services.
+* [MongoDB](https://www.mongodb.com/) - Como banco de dados.
+* [Mongoose](http://mongoosejs.com/) - ODM para MongoDB.
+* [Mocha](https://mochajs.org/) - Para os testes.
+* [Swagger](https://swagger.io/) - Para a documentação das rotas da api.
 
