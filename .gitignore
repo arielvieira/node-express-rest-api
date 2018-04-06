@@ -1,1 +1,6 @@
+#NPM
 node_modules
+
+#Config
+/config/dev.js
+/config/test.js

@@ -3,10 +3,24 @@ const request = require('supertest');
 
 const app = require('./../../app');
 const User = require('./../models/user');
+const Contato = require('./../models/contato');
 const { users, populateUsers } = require('./seed/userSeed');
 
+let tokenUserOne;
+let tokenUserTwo;
+beforeEach((done) => {
+    const populatetokens = async () => {
+        const tokens = await Promise.all([
+            await users[0].generateAuthToken(),
+            await users[1].generateAuthToken()
+        ]);
+        [tokenUserOne, tokenUserTwo] = [...tokens];
+    }
+    populatetokens();
+    populateUsers(done);
+});
+
 describe('Usuarios', () => {
-    beforeEach(populateUsers);
     describe('POST /usuarios', () => {
         it('should create a user', (done) => {
             const email = 'test@test.com';
@@ -69,6 +83,56 @@ describe('Usuarios', () => {
                     expect(res.body).toEqual({});
                 })
                 .end(done);
+        });
+    });
+
+    describe('PATCH /usuarios/me', () => {
+        it('should update user', (done) => {
+            const newEmail = 'newemail@gmail.com';
+            const password = 'asd456';
+
+            request(app)
+                .patch('/usuarios/me')
+                .send({ email: newEmail, password })
+                .set('authorization', tokenUserTwo)
+                .expect(200)
+                .expect((res) => {
+                    const { id, email, token } = res.body;
+                    expect(id.toString()).toBe(users[1]._id.toHexString());
+                    expect(email).toBe(newEmail);
+                    expect(token).toBeTruthy();
+                    expect(token).not.toBe(tokenUserTwo);
+                })
+                .end(done);
+        });
+
+        it('should not update contato if password or email are invalid', (done) => {
+            const email = 'new email';
+            const password = 'pass';
+
+            request(app)
+                .patch('/usuarios/me')
+                .send({ email, password })
+                .set('authorization', tokenUserTwo)
+                .expect(400)
+                .end(done);
+        });
+    });
+
+
+    describe('DELETE /usuarios/me', () => {
+        it('should remove user and its contatos', (done) => {
+            request(app)
+                .delete('/usuarios/me')
+                .set('authorization', tokenUserOne)
+                .expect(200)
+                .end(async (err, res) => {
+                    if (err) return done(err);
+
+                    const contatos = await Contato.find({ _creator: users[0]._id });
+                    expect(contatos.length).toBe(0);
+                    done();
+                });
         });
     });
 });

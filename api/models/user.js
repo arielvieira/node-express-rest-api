@@ -32,14 +32,14 @@ userSchema.methods.generateAuthToken = function () {
                 email: user.email,
                 userId: user._id.toHexString()
             },
-            '123', {
-                expiresIn: "1h"
+            process.env.JWT_SECRET,
+            {
+                expiresIn: '24h'
             }
         );
         resolve(token);
     })
 };
-
 
 userSchema.statics.findByCredentials = function (email, password) {
     const User = this;

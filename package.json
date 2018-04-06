@@ -4,21 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha api/tests/*.test.js --exit",
+    "start": "node server.js",
+    "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha api/tests/*.test.js --exit",
     "test-watch": "nodemon --exec \"npm test\""
   },
   "engines": {
     "node": "9.4.0"
   },
   "author": "Ariel Vieira",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
+    "express-paginate": "^0.3.0",
     "jsonwebtoken": "^8.2.0",
+    "moment": "^2.22.0",
     "mongoose": "^4.13.12",
-    "morgan": "^1.9.0",
+    "swagger-ui-express": "^3.0.6",
     "validator": "^9.4.1"
   },
   "devDependencies": {
