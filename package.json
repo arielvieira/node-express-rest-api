@@ -14,7 +14,7 @@
   "author": "Ariel Vieira",
   "license": "MIT",
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "express-paginate": "^0.3.0",
